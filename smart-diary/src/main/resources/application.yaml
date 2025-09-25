@@ -1,0 +1,64 @@
+server:
+  port: 8080
+  forward-headers-strategy: framework
+app:
+  fontend-url: "http://localhost:3000"
+  ngrok:
+    fontend-url-public: "https://lavona-nonproficient-roxana.ngrok-free.dev"
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/smart_diary"
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      #ddl-auto: create-drop
+      ddl-auto: update
+    show-sql: true
+    open-in-view: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "ldtien1996@gmail.com"  # Gmail Gửi OTP
+    password: "kshxpilqgfylvyyy"       # App Password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+        provider:
+          google:
+            authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+            token-uri: "https://oauth2.googleapis.com/token"
+            user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
+            user-name-attribute: "sub"
+cloudinary:
+  cloud-name: "dinvsgjet"
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+jwt:
+  signerKey: ${JWT_SIGNER_KEY}
+  valid-duration: 86400
+  refreshable-duration: 3000000
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: "https://generativelanguage.googleapis.com/v1beta"
+    endpoints:
+      text-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"
+      image-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"
