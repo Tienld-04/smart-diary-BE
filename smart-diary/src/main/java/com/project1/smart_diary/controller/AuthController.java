@@ -10,7 +10,6 @@ import com.project1.smart_diary.dto.response.AuthenticationResponse;
 import com.project1.smart_diary.dto.response.UserResponse;
 import com.project1.smart_diary.security.JwtService;
 import com.project1.smart_diary.service.AuthService;
-import com.project1.smart_diary.service.GoogleService;
 import com.project1.smart_diary.service.ResetPassword.EmailService;
 import com.project1.smart_diary.service.ResetPassword.PasswordResetService;
 import com.project1.smart_diary.service.UserService;
@@ -33,8 +32,6 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private AuthService authService;
-    @Autowired
-    private GoogleService googleService;
     @Autowired
     private EmailService emailService;
     @Autowired
@@ -75,7 +72,7 @@ public class AuthController {
         loginGoogleDTO.setAvatarUrl(picture);
         loginGoogleDTO.setCreatedAt(LocalDateTime.now());
         loginGoogleDTO.setProviderId(sub);
-        googleService.createUserWithGoogle(loginGoogleDTO);
+        userService.createUserWithGoogle(loginGoogleDTO);
         //
         return ResponseEntity.ok(authService.LoginWithGoogle(loginGoogleDTO));
     }
