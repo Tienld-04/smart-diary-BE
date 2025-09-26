@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.context.SecurityContextHolder;
 //import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
@@ -33,19 +34,19 @@ public abstract class BaseEntity {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-      //  this.createdBy = getCurrentUser();
+        this.createdBy = getCurrentUser();
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-      //  this.updatedBy = getCurrentUser();
+        this.updatedBy = getCurrentUser();
     }
 
-//    private String getCurrentUser() {
-//        var auth = SecurityContextHolder.getContext().getAuthentication();
-//        return auth != null ? auth.getName() : "system";
-//    }
+    private String getCurrentUser() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : "system";
+    }
 
 }
 
