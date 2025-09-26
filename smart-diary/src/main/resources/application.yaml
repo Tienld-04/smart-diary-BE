@@ -1,26 +1,26 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
   forward-headers-strategy: framework
 app:
-  fontend-url: "http://localhost:3000"
+  fontend-url: ${FRONTEND_URL:http://localhost:3000}
   ngrok:
-    fontend-url-public: "https://5bab1bbac627.ngrok-free.app"
+    fontend-url-public: ${FRONTEND_URL_PUBLIC:https://5bab1bbac627.ngrok-free.app"}
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/smart_diary"
-    username: root
-    password: 123456
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       #ddl-auto: create-drop
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     open-in-view: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT:6379}
   mail:
     host: smtp.gmail.com
     port: 587
@@ -48,7 +48,7 @@ spring:
             user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
             user-name-attribute: "sub"
 cloudinary:
-  cloud-name: "dinvsgjet"
+  cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 jwt:
