@@ -4,7 +4,7 @@ server:
 app:
   fontend-url: "http://localhost:3000"
   ngrok:
-    fontend-url-public: "https://lavona-nonproficient-roxana.ngrok-free.dev"
+    fontend-url-public: "https://5bab1bbac627.ngrok-free.app"
 
 spring:
   datasource:
@@ -24,8 +24,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: "ldtien1996@gmail.com"  # Gmail Gửi OTP
-    password: "kshxpilqgfylvyyy"       # App Password
+    username: ${GMAIL_NAME} # Gmail Gửi OTP
+    password: ${GMAIL_APP_PASSWORD}      # App Password
     properties:
       mail:
         smtp:
