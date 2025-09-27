@@ -8,9 +8,10 @@ app:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://root:QlZZiXOWPluDjUWvPfibXoCuHiLWKoEz@trolley.proxy.rlwy.net:11590/railway}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:QlZZiXOWPluDJuWvPfibXoCuHilWKoEz}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       #ddl-auto: create-drop
@@ -19,9 +20,10 @@ spring:
     open-in-view: true
   data:
     redis:
-      host: ${SPRING_REDIS_HOST}
-      port: ${SPRING_REDIS_PORT:6379}
-      password: ${SPRING_REDIS_PASSWORD}
+      url: ${SPRING_REDIS_URL:redis://default:qWGDyGktLipgrWcPStRmgGHMcydfwVWX@switchback.proxy.rlwy.net:10366}
+#      host: ${SPRING_REDIS_HOST:}
+#      port: ${SPRING_REDIS_PORT:6379}
+#      password: ${SPRING_REDIS_PASSWORD:}
   mail:
     host: smtp.gmail.com
     port: 587

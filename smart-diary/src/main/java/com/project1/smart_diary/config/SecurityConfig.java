@@ -84,9 +84,9 @@ public class SecurityConfig {
                 .withSecretKey(secretKeySpec)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
-        OAuth2TokenValidator<Jwt> defaultValidator = JwtValidators.createDefault();
-        OAuth2TokenValidator<Jwt> blacklistValidator = new InvalidatedJwtValidator(invalidatedTokenRepository);
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaultValidator, blacklistValidator));
+        OAuth2TokenValidator<Jwt> defaultValidator = JwtValidators.createDefault(); // kiểm tra tính hợp lệ của token
+        OAuth2TokenValidator<Jwt> blacklistValidator = new InvalidatedJwtValidator(invalidatedTokenRepository); // kiểm tra jti của token có nằm trong DB blacklist hay không.
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaultValidator, blacklistValidator)); // kết hợp các validator
         return decoder;
     }
 }

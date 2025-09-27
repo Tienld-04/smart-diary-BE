@@ -49,16 +49,6 @@ public class AuthService {
     private JwtService jwtService;
     @Autowired
     private InvalidatedTokenRepository invalidateTokenRepository;
-    @NonFinal
-    @Value("${jwt.signerKey}")
-    protected String Signer_Key;
-    @NonFinal
-    @Value("${jwt.valid-duration}")
-    protected long Valid_Duration;
-    @NonFinal
-    @Value("${jwt.refreshable-duration}")
-    protected long Refresh_Duration;
-
 
     public AuthenticationResponse login(LoginRequest loginRequest) {
         UserEntity user = userRepository.findByEmail(loginRequest.getEmail());
