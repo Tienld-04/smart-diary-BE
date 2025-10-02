@@ -12,15 +12,13 @@ public class EmotionConverter implements AttributeConverter<Emotion, String> {
         if (emotion == null) {
             return null;
         }
-        return emotion.getDescription(); // Lưu description vào DB
+        return emotion.getDescription();
     }
-
     @Override
     public Emotion convertToEntityAttribute(String dbData) {
         if (dbData == null) {
             return null;
         }
-        // Tìm enum theo description - mô tả
         for (Emotion e : Emotion.values()) {
             if (e.getDescription().equals(dbData)) {
                 return e;
