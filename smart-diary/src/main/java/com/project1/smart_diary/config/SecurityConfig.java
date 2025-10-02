@@ -51,7 +51,9 @@ public class SecurityConfig {
 //                                "/users/reset-password",
                                 "/auth/login",
                                 "/auth/request-reset",
-                                "/auth/reset-password"
+                                "/auth/reset-password",
+                                "/v3/api-docs",
+                                "/v3/api-docs.yaml"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

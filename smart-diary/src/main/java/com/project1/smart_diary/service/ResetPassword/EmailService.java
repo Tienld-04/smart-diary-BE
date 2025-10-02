@@ -33,7 +33,7 @@ public class EmailService {
     public void checkMail(String email) {
         UserEntity user = userRepository.findByEmail(email);
         if(user == null) {
-            throw new ApplicationException(ErrorCode.USER_NOT_FOUND);
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
     }
     public void sendResetPasswordEmail(String to, String token) {

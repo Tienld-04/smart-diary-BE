@@ -4,8 +4,14 @@ package com.project1.smart_diary.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,7 +27,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-//    @ExceptionHandler(value = BadCredentialsException.class)
+    //    @ExceptionHandler(value = BadCredentialsException.class)
 //    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex){
 //        ErrorResponse errorResponse = ErrorResponse.builder()
 //                .code(ErrorCode.UNAUTHENTICATED.getCode())
@@ -42,5 +48,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(errorCode.getHttpStatusCode().value())
                 .body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 1234);
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+
+        List<String> errorMessages = ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(ObjectError::getDefaultMessage)
+                .toList();
+
+        body.put("message", errorMessages);
+        return ResponseEntity.badRequest().body(body);
     }
 }

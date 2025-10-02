@@ -39,7 +39,7 @@ public class AuthController {
     @Autowired
     private JwtService jwtService;
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
@@ -85,7 +85,7 @@ public class AuthController {
     }
 
     @PostMapping("/request-reset")
-    public ResponseEntity<String> requestReset(@RequestBody SendMailResetPassword sendMailResetPassword) {
+    public ResponseEntity<String> requestReset(@Valid @RequestBody SendMailResetPassword sendMailResetPassword) {
         emailService.checkMail(sendMailResetPassword.getEmail());
         String token = passwordResetService.createResetToken(sendMailResetPassword.getEmail());
         emailService.sendResetPasswordEmail(sendMailResetPassword.getEmail(), token);
@@ -93,7 +93,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
         if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu xác nhận không khớp");
         }
