@@ -47,9 +47,13 @@ public class DiaryService {
     private DiaryMediaService diaryMediaService;
     @Transactional
     public DiaryResponse createDiaryWithMedia(DiaryRequest req, List<MultipartFile> images) throws IOException {
-        // Dự đoán cảm xúc từ content (đã chứa cả text + icon)
+        if(req.getTitle() == null || req.getTitle().equals("")) {
+            throw new ApplicationException(ErrorCode.TITLE_NOT_NULL);
+        }
+        if(req.getContent() == null || req.getContent().equals("")) {
+            throw new ApplicationException(ErrorCode.CONTENT_NOT_NULL);
+        }
         Emotion emotion = geminiAPIService.predictTextEmotion(req.getContent());
-        // Sinh lời khuyên
         String advice = geminiAPIService.generateAdvice(req.getContent(), emotion);
 
         var context = SecurityContextHolder.getContext();
@@ -58,23 +62,15 @@ public class DiaryService {
         if (userCurrent == null) {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
-        if(req.getTitle() == null || req.getTitle().equals("")) {
-            throw new ApplicationException(ErrorCode.TITLE_NOT_NULL);
-        }
-        if(req.getContent() == null || req.getContent().equals("")) {
-            throw new ApplicationException(ErrorCode.CONTENT_NOT_NULL);
-        }
-        // Lưu Diary
+
         DiaryEntity diary = DiaryEntity.builder()
                 .title(req.getTitle())
-                .content(req.getContent()) // Lưu nguyên content chứa text + icon
+                .content(req.getContent())
                 .emotion(emotion)
                 .advice(advice)
                 .user(userCurrent)
                 .build();
         diary = diaryRepository.save(diary);
-        // Upload ảnh và lưu DiaryMedia
-        //List<String> mediaUrls = new ArrayList<>();
         DiaryMedia diaryMedia = new DiaryMedia();
         List<DiaryMediaResponse> diaryMediaResponseList = new ArrayList<>();
         if (images != null) {
