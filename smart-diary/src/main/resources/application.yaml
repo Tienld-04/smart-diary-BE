@@ -1,17 +1,20 @@
 server:
-  port: ${PORT:8080}
+  port: "${PORT:8080}"
   forward-headers-strategy: framework
 app:
-  fontend-url: ${FRONTEND_URL:http://localhost:3000}
+  fontend-url: "${FRONTEND_URL:http://localhost:3000}"
   ngrok:
-    fontend-url-public: ${FRONTEND_URL_PUBLIC:https://5bab1bbac627.ngrok-free.app"}
+    fontend-url-public: "${FRONTEND_URL_PUBLIC:https://5bab1bbac627.ngrok-free.app}"
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://root:QlZZiXOWPluDjUWvPfibXoCuHiLWKoEz@trolley.proxy.rlwy.net:11590/railway}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:QlZZiXOWPluDJuWvPfibXoCuHilWKoEz}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/smart_diary"
+    username: root
+    password: 123456
+#    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://root:QlZZiXOWPluDjUWvPfibXoCuHiLWKoEz@trolley.proxy.rlwy.net:11590/railway}
+#    username: ${SPRING_DATASOURCE_USERNAME:root}
+#    password: ${SPRING_DATASOURCE_PASSWORD:QlZZiXOWPluDJuWvPfibXoCuHilWKoEz}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       #ddl-auto: create-drop
@@ -20,15 +23,15 @@ spring:
     open-in-view: true
   data:
     redis:
-      url: ${SPRING_REDIS_URL:redis://default:qWGDyGktLipgrWcPStRmgGHMcydfwVWX@switchback.proxy.rlwy.net:10366}
-#      host: ${SPRING_REDIS_HOST:}
-#      port: ${SPRING_REDIS_PORT:6379}
+#      url: ${SPRING_REDIS_URL:redis://default:qWGDyGktLipgrWcPStRmgGHMcydfwVWX@switchback.proxy.rlwy.net:10366}
+      host: "${SPRING_REDIS_HOST:localhost}"
+      port: "${SPRING_REDIS_PORT:6379}"
 #      password: ${SPRING_REDIS_PASSWORD:}
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_NAME} # Gmail Gửi OTP
-    password: ${GMAIL_APP_PASSWORD}      # App Password
+    username: "${GMAIL_NAME:kshxpilqgfylvyyy}" # Gmail Gửi OTP
+    password: "${GMAIL_APP_PASSWORD:ldtien1996@gmail.com}"      # App Password
     properties:
       mail:
         smtp:
@@ -40,8 +43,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: "${GOOGLE_CLIENT_ID}"
+            client-secret: "${GOOGLE_CLIENT_SECRET}"
             scope: profile,email
             redirect-uri: "{baseUrl}/login/oauth2/code/google"
         provider:
@@ -51,17 +54,17 @@ spring:
             user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
             user-name-attribute: "sub"
 cloudinary:
-  cloud-name: ${CLOUDINARY_NAME}
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
+  cloud-name: "${CLOUDINARY_NAME:dinvsgjet}"
+  api-key: "${CLOUDINARY_API_KEY:529488681841853}"
+  api-secret: "${CLOUDINARY_API_SECRET:3MHUPMlnyEK_dU4EIRPp_GUGc5E}"
 jwt:
-  signerKey: ${JWT_SIGNER_KEY}
+  signerKey: "${JWT_SIGNER_KEY}"
   valid-duration: 86400
   refreshable-duration: 3000000
 gemini:
   api:
-    key: ${GEMINI_API_KEY}
-    url: "https://generativelanguage.googleapis.com/v1beta"
+    key: "AIzaSyAYnHSgEAQx4vNXcdjzCIyQ8Gkyao1dfnc"
+    url: "https://generativelanguage.googleapis.com/v1"
     endpoints:
-      text-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"
-      image-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"
+      text-generation: "${gemini.api.url}/models/gemini-2.0-flash:generateContent"
+#      image-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"

@@ -17,7 +17,7 @@ public class UserCreateRequest {
     private String email;
 
     @NotBlank(message = "Password not null")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
     @NotBlank(message = "FullName not null")

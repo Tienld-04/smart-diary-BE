@@ -15,10 +15,10 @@ public class ResetPasswordRequest {
     private String token;
 
     @NotBlank(message = "newPassword not null")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String newPassword;
 
     @NotBlank(message = "confirmPassword not null")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String confirmPassword;
 }

@@ -14,10 +14,10 @@ public class ChangePasswordRequest {
     String oldPassword;
 
     @NotBlank(message = "newPassword not null")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password must be at least 6 characters")
     String newPassword;
 
     @NotBlank(message = "confirmNewPassword not null")
-    @Size(min = 6)
+    @Size(min = 6, message = "Password must be at least 6 characters")
     String confirmNewPassword;
 }

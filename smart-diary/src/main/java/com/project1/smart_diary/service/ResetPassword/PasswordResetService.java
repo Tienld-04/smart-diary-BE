@@ -15,7 +15,9 @@ public class PasswordResetService {
 
     public String createResetToken(String email) {
         String token = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set("reset_token:" + token, email, 10, TimeUnit.MINUTES);
+        redisTemplate
+                .opsForValue()
+                .set("reset_token:" + token, email, 10, TimeUnit.MINUTES);
         return token;
     }
 
