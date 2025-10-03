@@ -3,6 +3,7 @@ package com.project1.smart_diary.dto.response;
 import com.project1.smart_diary.enums.Emotion;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Getter
 @Setter
@@ -16,4 +17,5 @@ public class DiaryResponse {
     private Emotion emotion;
     private String advice;
     private List<DiaryMediaResponse> listMedia;
+    private LocalDateTime createAt;
 }
