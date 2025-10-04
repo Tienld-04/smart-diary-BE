@@ -8,12 +8,13 @@ import com.project1.smart_diary.repository.custom.DiaryRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 @Repository
+@Slf4j
 public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
@@ -57,6 +58,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 query.setParameter("emotion", emotion);
             }
         }
+        log.info("Java Persistence Query Language: {} ", jpql);
         List<DiaryEntity> result = query.getResultList();
         return result;
     }
