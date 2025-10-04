@@ -22,10 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DiaryService {
@@ -211,7 +214,7 @@ public class DiaryService {
         } else {
             throw new ApplicationException(ErrorCode.DATE_NULL);
         }
-        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+        if (diaryEntityList == null || diaryEntityList.isEmpty()) {
             throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
         }
         List<DiaryResponse> res = new ArrayList<>();
@@ -221,29 +224,31 @@ public class DiaryService {
         }
         return res;
     }
-    private Emotion resolveEmotion(String  emotion) {
-        if(emotion == null || emotion.isBlank()){
+
+    private Emotion resolveEmotion(String emotion) {
+        if (emotion == null || emotion.isBlank()) {
             throw new ApplicationException(ErrorCode.EMOTION_NULL);
         }
         String inpEmotion = emotion.trim();
-        for(Emotion e : Emotion.values()){
+        for (Emotion e : Emotion.values()) {
             String description = e.getDescription();
             String text = description.replaceAll("[^\\p{L}\\p{Z}]", "").trim();
             String icon = description.replaceAll("[\\p{L}\\p{Z}]", "").trim();
-            if(inpEmotion.equalsIgnoreCase(description) || inpEmotion.equalsIgnoreCase(text) || inpEmotion.equals(icon)){
+            if (inpEmotion.equalsIgnoreCase(description) || inpEmotion.equalsIgnoreCase(text) || inpEmotion.equals(icon)) {
                 return e;
             }
         }
         return null;
     }
-    public List<DiaryResponse> searchDiaryByEmotion(String inpEmotion){
+
+    public List<DiaryResponse> searchDiaryByEmotion(String inpEmotion) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (inpEmotion == null) {
             throw new ApplicationException(ErrorCode.EMOTION_NULL);
         }
         Emotion emotion = resolveEmotion(inpEmotion);
         List<DiaryEntity> diaries = diaryRepository.findByUser_EmailAndEmotion(email, emotion);
-        if(diaries == null || diaries.isEmpty()){
+        if (diaries == null || diaries.isEmpty()) {
             throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
         }
         return diaries.stream()
@@ -251,19 +256,74 @@ public class DiaryService {
                 .toList();
     }
 
-    public List<DiaryResponse> searchDiaryByKeyword(String keyword){
-        if(keyword.equals("") || keyword.isBlank()){
+    public List<DiaryResponse> searchDiaryByKeyword(String keyword) {
+        if (keyword.equals("") || keyword.isBlank()) {
             throw new ApplicationException(ErrorCode.KEYWORD_NULL);
         }
-        String email  = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 //        List<DiaryEntity> diaryEntityList = diaryRepository
 //                .findByUser_EmailAndTitleContainingIgnoreCaseOrUser_EmailAndContentContainingIgnoreCase(email, keyword,email, keyword);
         List<DiaryEntity> diaryEntityList = diaryRepository.findByKeyword(email, keyword);
-        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+        if (diaryEntityList == null || diaryEntityList.isEmpty()) {
             throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
         }
         return diaryEntityList.stream()
                 .map(diaryConverter::converToDiaryResponse)
                 .toList();
     }
+
+    public List<DiaryResponse> getRecentDiary() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<DiaryEntity> diaryEntityList = diaryRepository.findTop3ByUser_EmailOrderByCreatedAtDesc(email);
+        if (diaryEntityList == null || diaryEntityList.isEmpty()) {
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaryEntityList.stream().map(diaryConverter::converToDiaryResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteDiaryByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new ApplicationException(ErrorCode.IDS_DIARY_NULL);
+        }
+        diaryRepository.deleteByIdIn(ids);
+    }
+
+    public Map<LocalDate, Emotion> getEmotionByMonth(int year, int month) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        LocalDate from = LocalDate.of(year, month, 1);
+        LocalDateTime fromDate = from.atStartOfDay();
+        LocalDateTime toDate = from.plusMonths(1).atStartOfDay();
+        List<DiaryEntity> diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBetween(email, fromDate, toDate);
+        //Nhóm cảm xúc theo ngày
+        Map<LocalDate, List<DiaryEntity>> diariesByDay = diaryEntityList
+                .stream().collect(Collectors.groupingBy(d -> d.getCreatedAt().toLocalDate()));
+        System.out.println("diariesByDay: " + diariesByDay);
+        Map<LocalDate, Emotion> res = new HashMap<>();
+        for (Map.Entry<LocalDate, List<DiaryEntity>> entry : diariesByDay.entrySet()) {
+            // Gom nhóm cảm xúc và đếm số luượng mỗi loại qua từng ngày
+            Map<Emotion, Long> countMap = entry.getValue().stream()
+                    .collect(Collectors.groupingBy(DiaryEntity::getEmotion, Collectors.counting()));
+            if (countMap.isEmpty()) {
+                res.put(entry.getKey(), null);
+                continue;
+            }
+            long maxCnt = countMap.values().stream().mapToLong(Long::longValue).max().orElse(0);
+            // Lấy danh sách cảm xúc có số lượng bằng maxCount
+            List<Emotion> listEmotions = countMap.entrySet().stream()
+                    .filter(e -> e.getValue() == maxCnt)
+                    .map(Map.Entry::getKey)
+                    .toList();
+            Emotion emotion;
+            if (listEmotions.size() == 1) {
+                emotion = listEmotions.get(0);
+            } else {
+                emotion = Emotion.NEUTRAL;
+            }
+            res.put(entry.getKey(), emotion);
+        }
+        return res;
+    }
+
+
 }

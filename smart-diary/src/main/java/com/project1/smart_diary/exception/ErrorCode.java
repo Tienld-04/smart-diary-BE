@@ -22,6 +22,7 @@ public enum ErrorCode {
     EMOTION_NULL(3002, "Emotions cannot be blank, please enter emotions to search.", HttpStatus.BAD_REQUEST),
     DIARY_NOT_FOUND(3003, "Diary not found", HttpStatus.NOT_FOUND),
     KEYWORD_NULL(3004, "Keyword cannot be blank.", HttpStatus.BAD_REQUEST),
+    IDS_DIARY_NULL(3005, "IDs cannot be blank.", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
