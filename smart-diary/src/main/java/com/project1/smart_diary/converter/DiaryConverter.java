@@ -31,6 +31,7 @@ public class DiaryConverter {
 
     public DiaryResponse converToDiaryResponse(DiaryEntity diaryEntity) {
         DiaryResponse diaryResponse = modelMapper.map(diaryEntity, DiaryResponse.class);
+        diaryResponse.setCreateAt(diaryEntity.getCreatedAt());
         List<DiaryMedia> diaryMedia = diaryEntity.getMedia();
         List<DiaryMediaResponse> diaryMediaResponseList = new ArrayList<>();
         if (diaryMedia == null) {

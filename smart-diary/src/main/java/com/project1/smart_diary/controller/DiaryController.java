@@ -2,17 +2,19 @@ package com.project1.smart_diary.controller;
 
 
 import com.project1.smart_diary.dto.request.DiaryRequest;
+import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryResponse;
 import com.project1.smart_diary.service.DiaryService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -54,6 +56,26 @@ public class DiaryController {
     public ResponseEntity<List<DiaryResponse>> getAllDiaries() {
         List<DiaryResponse> diaries = diaryService.getAllDiaryByUserCurrent();
         return ResponseEntity.ok(diaries);
+    }
+
+    @GetMapping("/search/date")
+    public ResponseEntity<List<DiaryResponse>> searchDiaryByDate(
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+        DiarySearchByDateRequest diarySearchByDateRequest = new DiarySearchByDateRequest();
+        diarySearchByDateRequest.setFromDate(fromDate);
+        diarySearchByDateRequest.setToDate(toDate);
+        return ResponseEntity.ok(diaryService.searchDiaryByDate(diarySearchByDateRequest));
+    }
+    @GetMapping("/search/emotion")
+    public ResponseEntity<List<DiaryResponse>> searchDiaryByEmotion(@RequestParam(value = "emotion", required = false) String emotion){
+        return  ResponseEntity.ok(diaryService.searchDiaryByEmotion(emotion));
+    }
+    @GetMapping("/search/keyword")
+    public ResponseEntity<List<DiaryResponse>> searchDiaryByKeyword(
+            @RequestParam("keyword") String keyword
+    ) {
+        return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
     }
 
 }

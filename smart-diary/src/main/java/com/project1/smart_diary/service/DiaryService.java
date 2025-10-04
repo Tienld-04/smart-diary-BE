@@ -2,6 +2,7 @@ package com.project1.smart_diary.service;
 
 import com.project1.smart_diary.converter.DiaryConverter;
 import com.project1.smart_diary.dto.request.DiaryRequest;
+import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryMediaResponse;
 import com.project1.smart_diary.dto.response.DiaryResponse;
@@ -15,16 +16,13 @@ import com.project1.smart_diary.repository.DiaryMediaRepository;
 import com.project1.smart_diary.repository.DiaryRepository;
 import com.project1.smart_diary.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +43,13 @@ public class DiaryService {
     private DiaryConverter diaryConverter;
     @Autowired
     private DiaryMediaService diaryMediaService;
+
     @Transactional
     public DiaryResponse createDiaryWithMedia(DiaryRequest req, List<MultipartFile> images) throws IOException {
-        if(req.getTitle() == null || req.getTitle().equals("")) {
+        if (req.getTitle() == null || req.getTitle().equals("")) {
             throw new ApplicationException(ErrorCode.TITLE_NOT_NULL);
         }
-        if(req.getContent() == null || req.getContent().equals("")) {
+        if (req.getContent() == null || req.getContent().equals("")) {
             throw new ApplicationException(ErrorCode.CONTENT_NOT_NULL);
         }
         Emotion emotion = geminiAPIService.predictTextEmotion(req.getContent());
@@ -77,7 +76,7 @@ public class DiaryService {
             for (MultipartFile img : images) {
                 Map up = cloudinaryService.uploadFile(img, "diary_images");
                 String url = (String) up.get("secure_url");
-               // mediaUrls.add(url);
+                // mediaUrls.add(url);
                 DiaryMedia media = DiaryMedia.builder()
                         .mediaUrl(url)
                         .diary(diary)
@@ -126,17 +125,18 @@ public class DiaryService {
 //        DiaryResponse res = diaryConverter.converToDiaryResponse(diary);
 //        return res;
     }
+
     @Transactional
     public DiaryResponse updateDiary(UpdateDiaryRequest req, List<MultipartFile> newImages) throws IOException {
-        if(req.getTitle() == null || req.getTitle().equals("")) {
+        if (req.getTitle() == null || req.getTitle().equals("")) {
             throw new ApplicationException(ErrorCode.TITLE_NOT_NULL);
         }
-        if(req.getContent() == null || req.getContent().equals("")) {
+        if (req.getContent() == null || req.getContent().equals("")) {
             throw new ApplicationException(ErrorCode.CONTENT_NOT_NULL);
         }
-        DiaryEntity diary = diaryRepository.findById(req.getDiaryId()).orElseThrow(()-> new RuntimeException("Diary not found with id " + req.getDiaryId()));
+        DiaryEntity diary = diaryRepository.findById(req.getDiaryId()).orElseThrow(() -> new RuntimeException("Diary not found with id " + req.getDiaryId()));
         diary.setTitle(req.getTitle());
-        if(!diary.getContent().equals(req.getContent())) {
+        if (!diary.getContent().equals(req.getContent())) {
             diary.setContent(req.getContent());
             Emotion emotion = geminiAPIService.predictTextEmotion(req.getContent());
             String advice = geminiAPIService.generateAdvice(req.getContent(), emotion);
@@ -145,7 +145,7 @@ public class DiaryService {
 
         }
         List<Long> imageIdsDelete = req.getImageIdsDelete();
-        if(imageIdsDelete != null) {
+        if (imageIdsDelete != null) {
             diaryMediaService.deleteDiaryMediaByIds(imageIdsDelete);
         }
 
@@ -169,9 +169,10 @@ public class DiaryService {
                 .emotion(res.getEmotion())
                 .advice(res.getAdvice())
                 .listMedia(diaryMediaResponseList)
+                .createAt(res.getCreatedAt())
                 .build();
-
     }
+
     public DiaryResponse findDiaryById(Long id) {
         DiaryEntity diary = diaryRepository.findById(id).get();
         DiaryResponse diaryResponse = diaryConverter.converToDiaryResponse(diary);
@@ -193,4 +194,76 @@ public class DiaryService {
         return res;
     }
 
+    public List<DiaryResponse> searchDiaryByDate(DiarySearchByDateRequest rq) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<DiaryEntity> diaryEntityList = new ArrayList<>();
+        if (rq.getToDate() != null && rq.getFromDate() != null) {
+            LocalDateTime fromDateTime = rq.getFromDate().atStartOfDay();
+            LocalDateTime toDateTime = rq.getToDate().plusDays(1).atStartOfDay().minusNanos(1);
+            diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBetween(email, fromDateTime, toDateTime);
+        } else if (rq.getFromDate() != null) {
+            LocalDateTime fromDateTime = rq.getFromDate().atStartOfDay();
+            diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtAfter(email, fromDateTime);
+        } else if (rq.getToDate() != null) {
+            LocalDateTime toDateTime = rq.getToDate().plusDays(1).atStartOfDay().minusNanos(1);
+            diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBefore(email, toDateTime);
+
+        } else {
+            throw new ApplicationException(ErrorCode.DATE_NULL);
+        }
+        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        List<DiaryResponse> res = new ArrayList<>();
+        for (DiaryEntity diaryEntity : diaryEntityList) {
+            DiaryResponse diaryResponse = diaryConverter.converToDiaryResponse(diaryEntity);
+            res.add(diaryResponse);
+        }
+        return res;
+    }
+    private Emotion resolveEmotion(String  emotion) {
+        if(emotion == null || emotion.isBlank()){
+            throw new ApplicationException(ErrorCode.EMOTION_NULL);
+        }
+        String inpEmotion = emotion.trim();
+        for(Emotion e : Emotion.values()){
+            String description = e.getDescription();
+            String text = description.replaceAll("[^\\p{L}\\p{Z}]", "").trim();
+            String icon = description.replaceAll("[\\p{L}\\p{Z}]", "").trim();
+            if(inpEmotion.equalsIgnoreCase(description) || inpEmotion.equalsIgnoreCase(text) || inpEmotion.equals(icon)){
+                return e;
+            }
+        }
+        return null;
+    }
+    public List<DiaryResponse> searchDiaryByEmotion(String inpEmotion){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (inpEmotion == null) {
+            throw new ApplicationException(ErrorCode.EMOTION_NULL);
+        }
+        Emotion emotion = resolveEmotion(inpEmotion);
+        List<DiaryEntity> diaries = diaryRepository.findByUser_EmailAndEmotion(email, emotion);
+        if(diaries == null || diaries.isEmpty()){
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaries.stream()
+                .map(diaryConverter::converToDiaryResponse)
+                .toList();
+    }
+
+    public List<DiaryResponse> searchDiaryByKeyword(String keyword){
+        if(keyword.equals("") || keyword.isBlank()){
+            throw new ApplicationException(ErrorCode.KEYWORD_NULL);
+        }
+        String email  = SecurityContextHolder.getContext().getAuthentication().getName();
+//        List<DiaryEntity> diaryEntityList = diaryRepository
+//                .findByUser_EmailAndTitleContainingIgnoreCaseOrUser_EmailAndContentContainingIgnoreCase(email, keyword,email, keyword);
+        List<DiaryEntity> diaryEntityList = diaryRepository.findByKeyword(email, keyword);
+        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaryEntityList.stream()
+                .map(diaryConverter::converToDiaryResponse)
+                .toList();
+    }
 }
