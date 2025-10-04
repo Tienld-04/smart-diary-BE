@@ -211,6 +211,9 @@ public class DiaryService {
         } else {
             throw new ApplicationException(ErrorCode.DATE_NULL);
         }
+        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
         List<DiaryResponse> res = new ArrayList<>();
         for (DiaryEntity diaryEntity : diaryEntityList) {
             DiaryResponse diaryResponse = diaryConverter.converToDiaryResponse(diaryEntity);
@@ -244,6 +247,22 @@ public class DiaryService {
             throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
         }
         return diaries.stream()
+                .map(diaryConverter::converToDiaryResponse)
+                .toList();
+    }
+
+    public List<DiaryResponse> searchDiaryByKeyword(String keyword){
+        if(keyword.equals("") || keyword.isBlank()){
+            throw new ApplicationException(ErrorCode.KEYWORD_NULL);
+        }
+        String email  = SecurityContextHolder.getContext().getAuthentication().getName();
+//        List<DiaryEntity> diaryEntityList = diaryRepository
+//                .findByUser_EmailAndTitleContainingIgnoreCaseOrUser_EmailAndContentContainingIgnoreCase(email, keyword,email, keyword);
+        List<DiaryEntity> diaryEntityList = diaryRepository.findByKeyword(email, keyword);
+        if(diaryEntityList == null || diaryEntityList.isEmpty()){
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaryEntityList.stream()
                 .map(diaryConverter::converToDiaryResponse)
                 .toList();
     }

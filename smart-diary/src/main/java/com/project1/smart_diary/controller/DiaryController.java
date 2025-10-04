@@ -71,5 +71,11 @@ public class DiaryController {
     public ResponseEntity<List<DiaryResponse>> searchDiaryByEmotion(@RequestParam(value = "emotion", required = false) String emotion){
         return  ResponseEntity.ok(diaryService.searchDiaryByEmotion(emotion));
     }
+    @GetMapping("/search/keyword")
+    public ResponseEntity<List<DiaryResponse>> searchDiaryByKeyword(
+            @RequestParam("keyword") String keyword
+    ) {
+        return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
+    }
 
 }
