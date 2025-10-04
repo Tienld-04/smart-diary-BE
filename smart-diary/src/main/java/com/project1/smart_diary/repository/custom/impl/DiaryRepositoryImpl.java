@@ -58,7 +58,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 query.setParameter("emotion", emotion);
             }
         }
-        log.info("Java Persistence Query Language: {} ", jpql);
+        log.info("Java Persistence Query Language Search Keyword: {} ", jpql);
         List<DiaryEntity> result = query.getResultList();
         return result;
     }

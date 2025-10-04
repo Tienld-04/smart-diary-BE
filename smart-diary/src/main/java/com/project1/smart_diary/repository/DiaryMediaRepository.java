@@ -11,4 +11,5 @@ import java.util.List;
 public interface DiaryMediaRepository extends JpaRepository<DiaryMedia,Long> {
     void deleteByIdIn(List<Long> ids);
     List<DiaryMedia> findByDiary(DiaryEntity diary);
+
 }

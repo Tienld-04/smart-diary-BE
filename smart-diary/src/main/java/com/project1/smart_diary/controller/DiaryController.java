@@ -5,6 +5,7 @@ import com.project1.smart_diary.dto.request.DiaryRequest;
 import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryResponse;
+import com.project1.smart_diary.enums.Emotion;
 import com.project1.smart_diary.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/diaries")
@@ -77,5 +80,24 @@ public class DiaryController {
     ) {
         return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
     }
-
+    @GetMapping("/recent")
+    public ResponseEntity<List<DiaryResponse>> getThreeRecentDiary() {
+        List<DiaryResponse> diaryResponses = diaryService.getRecentDiary();
+        return ResponseEntity.ok(diaryResponses);
+    }
+    @DeleteMapping("/{diaryId}")
+    public ResponseEntity<Map<String, String>> deleteDiaryByIds(@PathVariable List<Long> diaryId) {
+        diaryService.deleteDiaryByIds(diaryId);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "đã xóa thành công");
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/emotions")
+    public ResponseEntity<Map<LocalDate, Emotion>> getEmotionsByMonth(
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        Map<LocalDate, Emotion> emotions = diaryService.getEmotionByMonth(year, month);
+        return ResponseEntity.ok(emotions);
+    }
 }

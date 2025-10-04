@@ -23,6 +23,11 @@ public class EmotionConverter implements AttributeConverter<Emotion, String> {
             if (e.getDescription().equals(dbData)) {
                 return e;
             }
+//            String descWithoutIcon = e.getDescription().replaceAll("[^\\p{L}\\p{Z}]", "").trim();
+//            String inputWithoutIcon = dbData.replaceAll("[^\\p{L}\\p{Z}]", "").trim();
+//            if (descWithoutIcon.equalsIgnoreCase(inputWithoutIcon)) {
+//                return e;
+//            }
         }
         throw new IllegalArgumentException("Unknown description: " + dbData);
     }

@@ -21,4 +21,6 @@ public interface DiaryRepository extends JpaRepository<DiaryEntity,Long>, DiaryR
     List<DiaryEntity> findByUser_EmailAndTitleContainingIgnoreCaseOrUser_EmailAndContentContainingIgnoreCase(
             String email1, String keyword1, String email2, String keyword2
     );
+    List<DiaryEntity> findTop3ByUser_EmailOrderByCreatedAtDesc(String username);
+    void deleteByIdIn(List<Long> ids);
 }
