@@ -48,7 +48,7 @@ public class DiaryService {
     private DiaryMediaService diaryMediaService;
 
     @Transactional
-    public DiaryResponse createDiaryWithMedia(DiaryRequest req, List<MultipartFile> images) throws IOException {
+    public DiaryResponse createDiaryWithMedia(DiaryRequest req) throws IOException {
         if (req.getTitle() == null || req.getTitle().equals("")) {
             throw new ApplicationException(ErrorCode.TITLE_NOT_NULL);
         }
@@ -75,6 +75,7 @@ public class DiaryService {
         diary = diaryRepository.save(diary);
         DiaryMedia diaryMedia = new DiaryMedia();
         List<DiaryMediaResponse> diaryMediaResponseList = new ArrayList<>();
+        List<MultipartFile> images = req.getImages();
         if (images != null) {
             for (MultipartFile img : images) {
                 Map up = cloudinaryService.uploadFile(img, "diary_images");
@@ -97,6 +98,7 @@ public class DiaryService {
                 .emotion(diary.getEmotion())
                 .advice(diary.getAdvice())
                 .listMedia(diaryMediaResponseList)
+                .createAt(diary.getCreatedAt())
                 .build();
 
         return res;
@@ -295,13 +297,11 @@ public class DiaryService {
         LocalDateTime fromDate = from.atStartOfDay();
         LocalDateTime toDate = from.plusMonths(1).atStartOfDay();
         List<DiaryEntity> diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBetween(email, fromDate, toDate);
-        //Nhóm cảm xúc theo ngày
         Map<LocalDate, List<DiaryEntity>> diariesByDay = diaryEntityList
                 .stream().collect(Collectors.groupingBy(d -> d.getCreatedAt().toLocalDate()));
         System.out.println("diariesByDay: " + diariesByDay);
         Map<LocalDate, Emotion> res = new HashMap<>();
         for (Map.Entry<LocalDate, List<DiaryEntity>> entry : diariesByDay.entrySet()) {
-            // Gom nhóm cảm xúc và đếm số luượng mỗi loại qua từng ngày
             Map<Emotion, Long> countMap = entry.getValue().stream()
                     .collect(Collectors.groupingBy(DiaryEntity::getEmotion, Collectors.counting()));
             if (countMap.isEmpty()) {
@@ -309,7 +309,6 @@ public class DiaryService {
                 continue;
             }
             long maxCnt = countMap.values().stream().mapToLong(Long::longValue).max().orElse(0);
-            // Lấy danh sách cảm xúc có số lượng bằng maxCount
             List<Emotion> listEmotions = countMap.entrySet().stream()
                     .filter(e -> e.getValue() == maxCnt)
                     .map(Map.Entry::getKey)
@@ -324,6 +323,4 @@ public class DiaryService {
         }
         return res;
     }
-
-
 }
