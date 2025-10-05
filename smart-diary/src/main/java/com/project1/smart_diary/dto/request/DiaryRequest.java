@@ -2,6 +2,9 @@ package com.project1.smart_diary.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,4 +16,6 @@ public class DiaryRequest {
     private String title;
     @NotBlank(message = "Content not null")
     private String content;
+
+    private List<MultipartFile> images;
 }
