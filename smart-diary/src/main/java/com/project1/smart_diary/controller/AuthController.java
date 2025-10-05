@@ -5,7 +5,7 @@ import com.project1.smart_diary.dto.LoginGoogleDTO;
 import com.project1.smart_diary.dto.request.*;
 import com.project1.smart_diary.dto.request.password.ChangePasswordRequest;
 import com.project1.smart_diary.dto.request.password.ResetPasswordRequest;
-import com.project1.smart_diary.dto.request.password.SendMailResetPassword;
+import com.project1.smart_diary.dto.request.password.SendMailResetPasswordRequest;
 import com.project1.smart_diary.dto.response.AuthenticationResponse;
 import com.project1.smart_diary.dto.response.UserResponse;
 import com.project1.smart_diary.security.JwtService;
@@ -85,7 +85,7 @@ public class AuthController {
     }
 
     @PostMapping("/request-reset")
-    public ResponseEntity<String> requestReset(@Valid @RequestBody SendMailResetPassword sendMailResetPassword) {
+    public ResponseEntity<String> requestReset(@Valid @RequestBody SendMailResetPasswordRequest sendMailResetPassword) {
         emailService.checkMail(sendMailResetPassword.getEmail());
         String token = passwordResetService.createResetToken(sendMailResetPassword.getEmail());
         emailService.sendResetPasswordEmail(sendMailResetPassword.getEmail(), token);

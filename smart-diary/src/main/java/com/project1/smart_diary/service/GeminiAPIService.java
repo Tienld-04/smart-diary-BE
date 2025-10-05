@@ -100,7 +100,9 @@ public class GeminiAPIService {
             return "Hãy giữ tinh thần tích cực và tiếp tục cố gắng!";
         }
     }
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     private String extractTextFromResponse(String jsonResponse) {
         try {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
@@ -129,6 +131,36 @@ public class GeminiAPIService {
         } catch (Exception e) {
             log.error("Error parsing JSON response: {}", e.getMessage());
             return "Lỗi khi xử lý phản hồi từ AI: " + e.getMessage();
+        }
+    }
+
+    public String getChatbotResponse(String userMessage, String context) {
+        if (userMessage == null || userMessage.isEmpty()) {
+            throw new IllegalArgumentException("User message cannot be null or empty");
+        }
+
+        String prompt = String.format("Bạn là một người bạn tâm tình thân thiện. Hãy trả lời câu hỏi: '%s'. %s",
+                userMessage,
+                context != null ? "Context: " + context : "");
+        try {
+            String rawResponse = callGeminiAPI(prompt);
+            JsonNode root = objectMapper.readTree(rawResponse);
+            JsonNode textNode = root.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text");
+
+            if (textNode.isMissingNode() || textNode.asText().isBlank()) {
+                log.warn("Không tìm thấy nội dung phản hồi hợp lệ trong API Gemini");
+                return "Xin lỗi, tôi không hiểu câu hỏi của bạn. Bạn có thể nói lại được không?";
+            }
+            String result = textNode.asText().trim();
+            return result.replace("\\n", "\n").replace("\\t", "\t");
+        } catch (Exception e) {
+            log.error("Error getting chatbot response: {}", e.getMessage());
+            return "Xin lỗi, tôi đang gặp vấn đề kỹ thuật. Bạn có thể thử lại sau.";
         }
     }
 }
