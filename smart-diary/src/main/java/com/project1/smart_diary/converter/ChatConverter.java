@@ -17,7 +17,7 @@ public class ChatConverter {
     private ModelMapper modelMapper;
 
     public ChatMessageResponse converToChatMessageResponse(ChatMessage chatMessage) {
-        ChatMessageResponse chatMessageResponse = modelMapper.map(chatMessage, ChatMessageResponse.class);
+        ChatMessageResponse chatMessageResponse = new  ChatMessageResponse();
         if(chatMessage.isUserMessage()){
             chatMessageResponse.setUserMessage(chatMessage.getMessage());
         }else{
