@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
     @Autowired
     private ChatService chatService;
+
     @PostMapping
-    public ResponseEntity<ChatSessionResponse> chatMessageUserWithAI(@Valid @RequestBody ChatMesssageRequest chatMesssageRequest) {
+    public ResponseEntity<ChatSessionResponse> chatMessageUserWithAI(
+            @Valid @RequestBody ChatMesssageRequest chatMesssageRequest) {
         return ResponseEntity.ok(chatService.createChatSession(chatMesssageRequest));
     }
+
     @GetMapping
-    public ResponseEntity<ChatSessionResponse> getChatSessionResponseByTitle(@RequestBody ChatTitleRequest chatTitleRequest) {
+    public ResponseEntity<ChatSessionResponse> getChatSessionResponseByTitle(
+            @RequestBody ChatTitleRequest chatTitleRequest) {
         return ResponseEntity.ok(chatService.getChatSessionByTitle(chatTitleRequest));
     }
 }
