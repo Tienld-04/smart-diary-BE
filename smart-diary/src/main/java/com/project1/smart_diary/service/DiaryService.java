@@ -3,6 +3,7 @@ package com.project1.smart_diary.service;
 import com.project1.smart_diary.converter.DiaryConverter;
 import com.project1.smart_diary.dto.request.DiaryRequest;
 import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
+import com.project1.smart_diary.dto.request.DiarySearchRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryMediaResponse;
 import com.project1.smart_diary.dto.response.DiaryResponse;
@@ -274,6 +275,16 @@ public class DiaryService {
                 .toList();
     }
 
+    public List<DiaryResponse> searchDiaryByFullOption(DiarySearchRequest diarySearchRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<DiaryEntity> diaryEntityList = diaryRepository.searchDiary(email, diarySearchRequest);
+        if (diaryEntityList == null || diaryEntityList.isEmpty()) {
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaryEntityList.stream()
+                .map(diaryConverter::converToDiaryResponse)
+                .toList();
+    }
     public List<DiaryResponse> getRecentDiary() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         List<DiaryEntity> diaryEntityList = diaryRepository.findTop3ByUser_EmailOrderByCreatedAtDesc(email);

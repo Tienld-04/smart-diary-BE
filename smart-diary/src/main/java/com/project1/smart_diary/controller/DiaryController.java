@@ -3,6 +3,7 @@ package com.project1.smart_diary.controller;
 
 import com.project1.smart_diary.dto.request.DiaryRequest;
 import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
+import com.project1.smart_diary.dto.request.DiarySearchRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryResponse;
 import com.project1.smart_diary.enums.Emotion;
@@ -85,6 +86,21 @@ public class DiaryController {
     ) {
         return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<DiaryResponse>> searchDiary(
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(value = "emotion", required = false) String emotion,
+            @RequestParam("keyword") String keyword){
+            DiarySearchRequest diarySearchRequest = DiarySearchRequest.builder()
+                    .fromDate(fromDate)
+                    .toDate(toDate)
+                    .emotion(emotion)
+                    .keyword(keyword)
+                    .build();
+        return ResponseEntity.ok(diaryService.searchDiaryByFullOption(diarySearchRequest));
+    }
+
     @GetMapping("/recent")
     public ResponseEntity<List<DiaryResponse>> getThreeRecentDiary() {
         List<DiaryResponse> diaryResponses = diaryService.getRecentDiary();
@@ -105,4 +121,5 @@ public class DiaryController {
         Map<LocalDate, Emotion> emotions = diaryService.getEmotionByMonth(year, month);
         return ResponseEntity.ok(emotions);
     }
+
 }
