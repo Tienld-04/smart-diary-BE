@@ -2,6 +2,7 @@ package com.project1.smart_diary.service;
 
 import com.project1.smart_diary.converter.ChatConverter;
 import com.project1.smart_diary.dto.request.ChatMesssageRequest;
+import com.project1.smart_diary.dto.request.ChatTitleRequest;
 import com.project1.smart_diary.dto.response.ChatMessageResponse;
 import com.project1.smart_diary.dto.response.ChatSessionResponse;
 import com.project1.smart_diary.entity.ChatMessage;
@@ -20,6 +21,8 @@ import org.springframework.web.client.RestClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +45,8 @@ public class ChatService {
                     .isUserMessage(true)
                     .session(chatSession)
                     .build();
-//            chatMessageRepository.save(chatMessageUser);
-            chatSessionRepository.saveAndFlush(chatSession);
+            chatMessageRepository.save(chatMessageUser);
+//            chatSessionRepository.saveAndFlush(chatSession);
             ChatMessage chatMessageAI = ChatMessage.builder()
                     .message(chatResult)
                     .isUserMessage(false)
@@ -95,14 +98,31 @@ public class ChatService {
                     .build();
         }
     }
-    public ChatSessionResponse getChatSessionByTitle(String title) {
+    public ChatSessionResponse getChatSessionByTitle(ChatTitleRequest chatTitleRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String title = chatTitleRequest.getTitle();
         ChatSession chatSession = chatSessionRepository.findByUser_EmailAndTitle(email, title);
-        List<ChatMessage> chatMessages = chatSession.getMessages();
+        List<ChatMessage> chatMessages = chatMessageRepository.findBySessionOrderByCreatedAtAsc(chatSession);
         List<ChatMessageResponse>  chatMessageResponses = new ArrayList<>();
         for (ChatMessage chatMessage : chatMessages) {
-            ChatMessageResponse chatMessageResponse = chatConverter.converToChatMessageResponse(chatMessage);
-            chatMessageResponses.add(chatMessageResponse);
+            if(chatMessage.isUserMessage()){
+                ChatMessageResponse chatMessageResponse = new  ChatMessageResponse();
+                chatMessageResponse.setUserMessage(defaultString(chatMessage.getMessage()));
+                chatMessageResponse.setChatMessage(null);
+                chatMessageResponses.add(chatMessageResponse);
+            }else{
+                if(!chatMessageResponses.isEmpty()){
+                    ChatMessageResponse last = chatMessageResponses.get(chatMessageResponses.size() - 1);
+                    if (last.getChatMessage() == null) {
+                        last.setChatMessage(defaultString(chatMessage.getMessage()));
+                        continue;
+                    }
+                }
+                ChatMessageResponse entry = new ChatMessageResponse();
+                entry.setUserMessage(null);
+                entry.setChatMessage(defaultString(chatMessage.getMessage()));
+                chatMessageResponses.add(entry);
+            }
         }
         return ChatSessionResponse.builder()
                 .title(title)
