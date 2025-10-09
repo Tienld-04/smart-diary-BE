@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project1.smart_diary.config.GeminiApiConfig;
 import com.project1.smart_diary.enums.Emotion;
+import com.project1.smart_diary.repository.DiaryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -134,14 +135,22 @@ public class GeminiAPIService {
         }
     }
 
-    public String getChatbotResponse(String userMessage, String context) {
+    public String getChatbotResponse(String userMessage, String question, String context) {
         if (userMessage == null || userMessage.isEmpty()) {
             throw new IllegalArgumentException("User message cannot be null or empty");
         }
 
-        String prompt = String.format("Bạn là một người bạn tâm tình thân thiện. Hãy trả lời câu hỏi: '%s'. %s",
+        String prompt = String.format(
+                "Bạn là một người bạn tâm tình thân thiện, thấu hiểu cảm xúc của người dùng. "
+                        + "Nếu câu hỏi sau KHÔNG liên quan đến ngữ cảnh trước đó, hãy bỏ qua ngữ cảnh và trả lời độc lập. "
+                        + "Nếu liên quan, hãy tận dụng ngữ cảnh để phản hồi tự nhiên và cảm xúc hơn. "
+                        + "question: \"%s\". "
+                        + "%s "
+                        + "%s",
                 userMessage,
-                context != null ? "Context: " + context : "");
+                context != null ? "context: " + context : "",
+                question != null ? "question: " + question : "");
+        log.info("Request body prompt: {}", prompt);
         try {
             String rawResponse = callGeminiAPI(prompt);
             JsonNode root = objectMapper.readTree(rawResponse);
