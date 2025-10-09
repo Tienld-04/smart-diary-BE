@@ -86,10 +86,11 @@ public class DiaryController {
     }
     @GetMapping("/search")
     public ResponseEntity<List<DiaryResponse>> searchDiary(
+            //@ModelAttribute DiarySearchRequest diarySearchRequest
             @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(value = "emotion", required = false) String emotion,
-            @RequestParam("keyword") String keyword){
+            @RequestParam(value = "keyword", required = false) String keyword){
             DiarySearchRequest diarySearchRequest = DiarySearchRequest.builder()
                     .fromDate(fromDate)
                     .toDate(toDate)

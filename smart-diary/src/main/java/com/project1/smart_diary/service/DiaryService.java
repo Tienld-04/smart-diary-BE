@@ -282,6 +282,7 @@ public class DiaryService {
                 .map(diaryConverter::converToDiaryResponse)
                 .toList();
     }
+
     public List<DiaryResponse> getRecentDiary() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         List<DiaryEntity> diaryEntityList = diaryRepository.findTop3ByUser_EmailOrderByCreatedAtDesc(email);
@@ -306,18 +307,21 @@ public class DiaryService {
         LocalDateTime toDate = from.plusMonths(1).atStartOfDay();
         List<DiaryEntity> diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBetween(email, fromDate, toDate);
         Map<LocalDate, List<DiaryEntity>> diariesByDay = diaryEntityList
-                .stream().collect(Collectors.groupingBy(d -> d.getCreatedAt().toLocalDate()));
-        System.out.println("diariesByDay: " + diariesByDay);
+                .stream()
+                .collect(Collectors.groupingBy(d -> d.getCreatedAt().toLocalDate()));
         Map<LocalDate, Emotion> res = new HashMap<>();
         for (Map.Entry<LocalDate, List<DiaryEntity>> entry : diariesByDay.entrySet()) {
-            Map<Emotion, Long> countMap = entry.getValue().stream()
+            Map<Emotion, Long> countMap = entry.getValue()
+                    .stream()
                     .collect(Collectors.groupingBy(DiaryEntity::getEmotion, Collectors.counting()));
             if (countMap.isEmpty()) {
                 res.put(entry.getKey(), null);
                 continue;
             }
             long maxCnt = countMap.values().stream().mapToLong(Long::longValue).max().orElse(0);
-            List<Emotion> listEmotions = countMap.entrySet().stream()
+            List<Emotion> listEmotions = countMap
+                    .entrySet()
+                    .stream()
                     .filter(e -> e.getValue() == maxCnt)
                     .map(Map.Entry::getKey)
                     .toList();

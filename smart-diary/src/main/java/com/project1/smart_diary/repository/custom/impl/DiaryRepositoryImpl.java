@@ -24,7 +24,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     private EntityManager entityManager;
 
     private Emotion mapKeywordToEmotion(String keyword) {
-        if (keyword.equals("") || keyword.isBlank()) {
+        if (keyword.trim().isEmpty() || keyword.isBlank()) {
             throw new ApplicationException(ErrorCode.EMOTION_NULL);
         }
         String inpEmotion = keyword.trim();
@@ -66,54 +66,59 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
         List<DiaryEntity> result = query.getResultList();
         return result;
     }
-
     @Override
     public List<DiaryEntity> searchDiary(String email, DiarySearchRequest diarySearchRequest) {
-        StringBuilder jpql = new StringBuilder("select d from DiaryEntity d where d.user.email = :email");
+        StringBuilder jpql = new StringBuilder("select d from DiaryEntity d where d.user.email = :email ");
         Map<String, Object> params = new HashMap<>();
         params.put("email", email);
-        Emotion emotion = mapKeywordToEmotion(diarySearchRequest.getEmotion());
-        if (diarySearchRequest.getEmotion() != null) {
-            jpql.append(" and d.emotion = :emotion ");
+
+        boolean hasCondition = false;
+
+        if (diarySearchRequest.getEmotion() != null && !diarySearchRequest.getEmotion().trim().isEmpty()) {
+            Emotion emotion = mapKeywordToEmotion(diarySearchRequest.getEmotion());
+            jpql.append("and d.emotion = :emotion ");
             params.put("emotion", emotion);
+            hasCondition = true;
+
         }
         LocalDateTime fromDate = null;
         LocalDateTime toDate = null;
-//
+
         if (diarySearchRequest.getFromDate() != null) {
             fromDate = diarySearchRequest.getFromDate().atStartOfDay();
-        } else if (diarySearchRequest.getToDate() != null) {
-            fromDate = LocalDateTime.of(1970, 1, 1, 0, 0);
         }
-
         if (diarySearchRequest.getToDate() != null) {
             toDate = diarySearchRequest.getToDate().plusDays(1).atStartOfDay().minusNanos(1);
-        } else if (diarySearchRequest.getFromDate() != null) {
-            toDate = LocalDateTime.now();
         }
         if (fromDate != null && toDate != null) {
             jpql.append("and d.createdAt between :fromDate and :toDate ");
             params.put("fromDate", fromDate);
             params.put("toDate", toDate);
+            hasCondition = true;
         } else if (fromDate != null) {
             jpql.append("and d.createdAt >= :fromDate ");
             params.put("fromDate", fromDate);
+            hasCondition = true;
         } else if (toDate != null) {
             jpql.append("and d.createdAt <= :toDate ");
             params.put("toDate", toDate);
+            hasCondition = true;
         }
-        //
         if (diarySearchRequest.getKeyword() != null && !diarySearchRequest.getKeyword().trim().isEmpty()) {
-            jpql.append("and (lower(d.title) like lower(:keyword) ")
-                    .append("or lower(d.content) like lower(:keyword)) ");
+            jpql.append("and (lower(d.title) like lower(:keyword) or lower(d.content) like lower(:keyword)) ");
             params.put("keyword", "%" + diarySearchRequest.getKeyword().trim().toLowerCase() + "%");
+            hasCondition = true;
+        }
+        if (!hasCondition) {
+            throw new ApplicationException(ErrorCode.SEARCH_DIARY_INVALID);
         }
         jpql.append("order by d.createdAt desc");
+
         TypedQuery<DiaryEntity> query = entityManager.createQuery(jpql.toString(), DiaryEntity.class);
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             query.setParameter(entry.getKey(), entry.getValue());
         }
-        log.info("Java Persistence Query Language Search Full Option: {} ", jpql);
+        log.info("JPQL Query Search: {}", jpql);
         return query.getResultList();
     }
 

@@ -16,13 +16,17 @@ public enum ErrorCode {
     PASSWORD_INVALID(1006, "Invalid password.", HttpStatus.BAD_REQUEST),
     EMAIL_NOT_EXISTED(1007, "Email is incorrect.", HttpStatus.UNAUTHORIZED),
     PASSWORD_NOT_EXISTED(1008, "Password is incorrect.", HttpStatus.UNAUTHORIZED),
+
     TITLE_NOT_NULL(2001, "Title cannot be blank.", HttpStatus.BAD_REQUEST),
     CONTENT_NOT_NULL(2002, "Content cannot be blank.", HttpStatus.BAD_REQUEST),
+
     DATE_NULL(3001, "FromDate and ToDate cannot both be null.", HttpStatus.BAD_REQUEST),
     EMOTION_NULL(3002, "Emotions cannot be blank, please enter emotions to search.", HttpStatus.BAD_REQUEST),
     DIARY_NOT_FOUND(3003, "Diary not found", HttpStatus.NOT_FOUND),
     KEYWORD_NULL(3004, "Keyword cannot be blank.", HttpStatus.BAD_REQUEST),
     IDS_DIARY_NULL(3005, "IDs cannot be blank.", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_FORMAT(3006, "Invalid date format. Please enter in yyyy-MM-dd format.", HttpStatus.BAD_REQUEST),
+    SEARCH_DIARY_INVALID(3007, "Please enter at least one search criteria!", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
