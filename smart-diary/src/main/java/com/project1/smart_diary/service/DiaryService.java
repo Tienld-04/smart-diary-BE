@@ -1,10 +1,7 @@
 package com.project1.smart_diary.service;
 
 import com.project1.smart_diary.converter.DiaryConverter;
-import com.project1.smart_diary.dto.request.DiaryRequest;
-import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
-import com.project1.smart_diary.dto.request.DiarySearchRequest;
-import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
+import com.project1.smart_diary.dto.request.*;
 import com.project1.smart_diary.dto.response.DiaryMediaResponse;
 import com.project1.smart_diary.dto.response.DiaryResponse;
 import com.project1.smart_diary.entity.DiaryEntity;
@@ -333,5 +330,16 @@ public class DiaryService {
             res.put(entry.getKey(), emotion);
         }
         return res;
+    }
+    public List<DiaryResponse> getAllDiaryByDateAndMonthAndYear(DiaryDateRequest diaryDateRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        LocalDate dateCurrent = LocalDate.of(diaryDateRequest.getYear(), diaryDateRequest.getMonth(), diaryDateRequest.getDay());
+        LocalDateTime startOfDay = dateCurrent.atStartOfDay();
+        LocalDateTime endOfDay = dateCurrent.plusDays(1).atStartOfDay().minusNanos(1);;
+        List<DiaryEntity> diaryEntityList = diaryRepository.findByUser_EmailAndCreatedAtBetween(email,startOfDay, endOfDay);
+        if(diaryEntityList == null || diaryEntityList.isEmpty()) {
+            throw new ApplicationException(ErrorCode.DIARY_NOT_FOUND);
+        }
+        return diaryEntityList.stream().map(diaryConverter::converToDiaryResponse).collect(Collectors.toList());
     }
 }

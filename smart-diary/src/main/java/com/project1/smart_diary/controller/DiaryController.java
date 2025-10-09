@@ -1,13 +1,11 @@
 package com.project1.smart_diary.controller;
 
 
-import com.project1.smart_diary.dto.request.DiaryRequest;
-import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
-import com.project1.smart_diary.dto.request.DiarySearchRequest;
-import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
+import com.project1.smart_diary.dto.request.*;
 import com.project1.smart_diary.dto.response.DiaryResponse;
 import com.project1.smart_diary.enums.Emotion;
 import com.project1.smart_diary.service.DiaryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -121,5 +119,8 @@ public class DiaryController {
         Map<LocalDate, Emotion> emotions = diaryService.getEmotionByMonth(year, month);
         return ResponseEntity.ok(emotions);
     }
-
+    @GetMapping("/date")
+    public ResponseEntity<List<DiaryResponse>> getAllDiaryByDate(@Valid @RequestBody DiaryDateRequest diaryDateRequest) {
+        return ResponseEntity.ok(diaryService.getAllDiaryByDateAndMonthAndYear(diaryDateRequest));
+    }
 }
