@@ -52,25 +52,25 @@ public class ChatService {
         String chatResult = geminiAPIService.getChatbotResponse(email, chatMesssageRequest.getMessage(), context);
 
         if (chatMesssageRequest.getTitle() != null && !chatMesssageRequest.getTitle().isBlank()) {
-            ChatSession chatSession1 = chatSessionRepository.findByUser_EmailAndTitle(email, chatMesssageRequest.getTitle());
-            if(chatSession1 == null){
-                chatSession1 = new ChatSession();
-                chatSession1.setUser(userEntity);
-                chatSession1.setTitle(chatMesssageRequest.getTitle());
+            ChatSession chatSession = chatSessionRepository.findByUser_EmailAndTitle(email, chatMesssageRequest.getTitle());
+            if(chatSession == null){
+                chatSession = new ChatSession();
+                chatSession.setUser(userEntity);
+                chatSession.setTitle(chatMesssageRequest.getTitle());
             }
-            ChatSession chatSession = chatSessionRepository.save(chatSession1);
+            ChatSession chatSession1 = chatSessionRepository.save(chatSession);
 
             ChatMessage chatMessageUser = ChatMessage.builder()
                     .message(chatMesssageRequest.getMessage())
                     .isUserMessage(true)
-                    .session(chatSession)
+                    .session(chatSession1)
                     .build();
             chatMessageRepository.save(chatMessageUser);
 //            chatSessionRepository.saveAndFlush(chatSession);
             ChatMessage chatMessageAI = ChatMessage.builder()
                     .message(chatResult)
                     .isUserMessage(false)
-                    .session(chatSession)
+                    .session(chatSession1)
                     .build();
             chatMessageRepository.save(chatMessageAI);
             ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
@@ -86,7 +86,7 @@ public class ChatService {
         } else {
             String title =  chatMesssageRequest.getMessage();
             String[] words = title.split("\\s+");
-            int limit = Math.min(5, words.length);
+            int limit = Math.min(7, words.length);
             String result = String.join(" ", Arrays.copyOfRange(words, 0, limit));
             ChatSession chatSession = ChatSession.builder()
                     .title(result)
