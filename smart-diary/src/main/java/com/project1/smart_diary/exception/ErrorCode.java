@@ -24,9 +24,10 @@ public enum ErrorCode {
     EMOTION_NULL(3002, "Emotions cannot be blank, please enter emotions to search.", HttpStatus.BAD_REQUEST),
     DIARY_NOT_FOUND(3003, "Diary not found", HttpStatus.NOT_FOUND),
     KEYWORD_NULL(3004, "Keyword cannot be blank.", HttpStatus.BAD_REQUEST),
-    IDS_DIARY_NULL(3005, "IDs cannot be blank.", HttpStatus.BAD_REQUEST),
-    INVALID_DATE_FORMAT(3006, "Invalid date format. Please enter in yyyy-MM-dd format.", HttpStatus.BAD_REQUEST),
-    SEARCH_DIARY_INVALID(3007, "Please enter at least one search criteria!", HttpStatus.BAD_REQUEST),
+    IDS_DIARY_NULL(3005, "Ids diaries cannot be blank.", HttpStatus.BAD_REQUEST),
+    IDS_DIARY_MEDIA_NULL(3006, "Ids media cannot be blank.", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_FORMAT(3007, "Invalid date format. Please enter in yyyy-MM-dd format.", HttpStatus.BAD_REQUEST),
+    SEARCH_DIARY_INVALID(3008, "Please enter at least one search criteria!", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
