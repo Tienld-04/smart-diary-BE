@@ -7,9 +7,11 @@ import com.project1.smart_diary.dto.response.ChatMessageResponse;
 import com.project1.smart_diary.dto.response.ChatSessionResponse;
 import com.project1.smart_diary.entity.ChatMessage;
 import com.project1.smart_diary.entity.ChatSession;
+import com.project1.smart_diary.entity.DiaryEntity;
 import com.project1.smart_diary.entity.UserEntity;
 import com.project1.smart_diary.repository.ChatMessageRepository;
 import com.project1.smart_diary.repository.ChatSessionRepository;
+import com.project1.smart_diary.repository.DiaryRepository;
 import com.project1.smart_diary.repository.UserRepository;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +35,31 @@ public class ChatService {
     private final ChatSessionRepository chatSessionRepository;
     private final UserRepository userRepository;
     private final ChatConverter chatConverter;
+    private final DiaryRepository diaryRepository;
     @Transactional
     public ChatSessionResponse createChatSession(ChatMesssageRequest chatMesssageRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepository.findByEmail(email);
-        String chatResult = geminiAPIService.getChatbotResponse(email, chatMesssageRequest.getMessage());
+        List<DiaryEntity> diaries = diaryRepository.findTop3ByUser_EmailOrderByCreatedAtDesc(email);
+        StringBuilder contextBuilder = new StringBuilder();
+        for (DiaryEntity diary : diaries) {
+            contextBuilder.append("- ")
+                    .append(diary.getTitle()).append(": ")
+                    .append(diary.getContent())
+                    .append("\n");
+        }
+        String context = contextBuilder.toString();
+        String chatResult = geminiAPIService.getChatbotResponse(email, chatMesssageRequest.getMessage(), context);
+
         if (chatMesssageRequest.getTitle() != null && !chatMesssageRequest.getTitle().isBlank()) {
-            ChatSession chatSession = chatSessionRepository.findByUser_EmailAndTitle(email, chatMesssageRequest.getTitle());
+            ChatSession chatSession1 = chatSessionRepository.findByUser_EmailAndTitle(email, chatMesssageRequest.getTitle());
+            if(chatSession1 == null){
+                chatSession1 = new ChatSession();
+                chatSession1.setUser(userEntity);
+                chatSession1.setTitle(chatMesssageRequest.getTitle());
+            }
+            ChatSession chatSession = chatSessionRepository.save(chatSession1);
+
             ChatMessage chatMessageUser = ChatMessage.builder()
                     .message(chatMesssageRequest.getMessage())
                     .isUserMessage(true)
@@ -73,17 +93,17 @@ public class ChatService {
                     .user(userEntity)
                     .build();
          //   chatSessionRepository.save(chatSession);
-            ChatSession chatSession1 = chatSessionRepository.saveAndFlush(chatSession);
+            ChatSession chatSession2 = chatSessionRepository.saveAndFlush(chatSession);
             ChatMessage chatMessageUser = ChatMessage.builder()
                     .message(chatMesssageRequest.getMessage())
                     .isUserMessage(true)
-                    .session(chatSession1)
+                    .session(chatSession2)
                     .build();
             chatMessageRepository.save(chatMessageUser);
             ChatMessage chatMessageAI = ChatMessage.builder()
                     .message(chatResult)
                     .isUserMessage(false)
-                    .session(chatSession1)
+                    .session(chatSession2)
                     .build();
             chatMessageRepository.save(chatMessageAI);
             ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
