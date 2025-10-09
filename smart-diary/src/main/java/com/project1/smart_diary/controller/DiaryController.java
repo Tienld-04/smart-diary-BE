@@ -45,6 +45,7 @@ public class DiaryController {
     }
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DiaryResponse> updateDiary(
+//            @ModelAttribute UpdateDiaryRequest updateDiaryRequest
             @PathVariable Long id,
             @RequestParam("title") String title,
             @RequestParam("content") String content,

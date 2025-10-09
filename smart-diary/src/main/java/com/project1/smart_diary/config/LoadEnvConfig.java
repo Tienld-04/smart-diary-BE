@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 
 @Configuration
-public class DotenvConfig {
+public class LoadEnvConfig {
     @PostConstruct
     public void loadEnv() {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
