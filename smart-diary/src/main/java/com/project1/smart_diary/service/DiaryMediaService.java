@@ -4,6 +4,8 @@ import com.project1.smart_diary.converter.DiaryConverter;
 import com.project1.smart_diary.dto.response.DiaryMediaResponse;
 import com.project1.smart_diary.entity.DiaryEntity;
 import com.project1.smart_diary.entity.DiaryMedia;
+import com.project1.smart_diary.exception.ApplicationException;
+import com.project1.smart_diary.exception.ErrorCode;
 import com.project1.smart_diary.repository.DiaryMediaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ public class DiaryMediaService {
     @Transactional
     public void deleteDiaryMediaByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Danh sách id rỗng");
+            throw new ApplicationException(ErrorCode.IDS_DIARY_MEDIA_NULL);
         }
         diaryMediaRepository.deleteByIdIn(ids);
     }
