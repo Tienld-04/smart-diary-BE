@@ -3,6 +3,7 @@ package com.project1.smart_diary.controller;
 
 import com.project1.smart_diary.dto.request.DiaryRequest;
 import com.project1.smart_diary.dto.request.DiarySearchByDateRequest;
+import com.project1.smart_diary.dto.request.DiarySearchRequest;
 import com.project1.smart_diary.dto.request.UpdateDiaryRequest;
 import com.project1.smart_diary.dto.response.DiaryResponse;
 import com.project1.smart_diary.enums.Emotion;
@@ -26,18 +27,22 @@ public class DiaryController {
     @Autowired
     private DiaryService diaryService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DiaryResponse> createDiary(
-            @RequestParam("title") String title,
-            @RequestParam("content") String content,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
-        DiaryRequest diaryRequest = new DiaryRequest();
-        diaryRequest.setTitle(title);
-        diaryRequest.setContent(content);
-        DiaryResponse result = diaryService.createDiaryWithMedia(diaryRequest, images);
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<DiaryResponse> createDiary(
+//            @RequestParam("title") String title,
+//            @RequestParam("content") String content,
+//            @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
+//        DiaryRequest diaryRequest = new DiaryRequest();
+//        diaryRequest.setTitle(title);
+//        diaryRequest.setContent(content);
+//        DiaryResponse result = diaryService.createDiaryWithMedia(diaryRequest, images);
+//        return ResponseEntity.ok(result);
+//    }
+    @PostMapping
+    public ResponseEntity<DiaryResponse> createDiary(@ModelAttribute DiaryRequest diaryRequest) throws IOException {
+        DiaryResponse result = diaryService.createDiaryWithMedia(diaryRequest);
         return ResponseEntity.ok(result);
     }
-
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DiaryResponse> updateDiary(
             @PathVariable Long id,
@@ -71,7 +76,8 @@ public class DiaryController {
         return ResponseEntity.ok(diaryService.searchDiaryByDate(diarySearchByDateRequest));
     }
     @GetMapping("/search/emotion")
-    public ResponseEntity<List<DiaryResponse>> searchDiaryByEmotion(@RequestParam(value = "emotion", required = false) String emotion){
+    public ResponseEntity<List<DiaryResponse>> searchDiaryByEmotion(
+            @RequestParam(value = "emotion", required = false) String emotion){
         return  ResponseEntity.ok(diaryService.searchDiaryByEmotion(emotion));
     }
     @GetMapping("/search/keyword")
@@ -80,6 +86,22 @@ public class DiaryController {
     ) {
         return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<DiaryResponse>> searchDiary(
+            //@ModelAttribute DiarySearchRequest diarySearchRequest
+            @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(value = "emotion", required = false) String emotion,
+            @RequestParam(value = "keyword", required = false) String keyword){
+            DiarySearchRequest diarySearchRequest = DiarySearchRequest.builder()
+                    .fromDate(fromDate)
+                    .toDate(toDate)
+                    .emotion(emotion)
+                    .keyword(keyword)
+                    .build();
+        return ResponseEntity.ok(diaryService.searchDiaryByFullOption(diarySearchRequest));
+    }
+
     @GetMapping("/recent")
     public ResponseEntity<List<DiaryResponse>> getThreeRecentDiary() {
         List<DiaryResponse> diaryResponses = diaryService.getRecentDiary();
@@ -100,4 +122,5 @@ public class DiaryController {
         Map<LocalDate, Emotion> emotions = diaryService.getEmotionByMonth(year, month);
         return ResponseEntity.ok(emotions);
     }
+
 }

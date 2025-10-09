@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendMailResetPassword {
+public class SendMailResetPasswordRequest {
     @NotBlank(message = "Email not null")
     @Email(message = "Email is not in correct format")
     private String email;
