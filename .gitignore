@@ -11,3 +11,6 @@
 .env
 
 .claude
+
+.gitattributes
+target
