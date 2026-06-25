@@ -5,6 +5,7 @@ import com.project1.smart_diary.dto.request.ChatMesssageRequest;
 import com.project1.smart_diary.dto.request.ChatTitleRequest;
 import com.project1.smart_diary.dto.response.ChatMessageResponse;
 import com.project1.smart_diary.dto.response.ChatSessionResponse;
+import com.project1.smart_diary.dto.response.ChatSessionSummaryResponse;
 import com.project1.smart_diary.entity.ChatMessage;
 import com.project1.smart_diary.entity.ChatSession;
 import com.project1.smart_diary.entity.DiaryEntity;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -118,10 +120,38 @@ public class ChatService {
                     .build();
         }
     }
-    public ChatSessionResponse getChatSessionByTitle(ChatTitleRequest chatTitleRequest) {
+    // Lấy toàn bộ session chat của user hiện tại (mới nhất lên đầu).
+    public List<ChatSessionSummaryResponse> getAllSessions() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        String title = chatTitleRequest.getTitle();
+        List<ChatSession> sessions = chatSessionRepository.findByUser_Email(email);
+        return sessions.stream()
+                .map(session -> {
+                    List<ChatMessage> messages = chatMessageRepository.findBySessionOrderByCreatedAtAsc(session);
+                    ChatMessage last = messages.isEmpty() ? null : messages.get(messages.size() - 1);
+                    return ChatSessionSummaryResponse.builder()
+                            .id(session.getId())
+                            .title(session.getTitle())
+                            .lastMessage(last != null ? last.getMessage() : "")
+                            .lastMessageAt(last != null ? last.getCreatedAt() : session.getCreatedAt())
+                            .createdAt(session.getCreatedAt())
+                            .build();
+                })
+                .sorted(Comparator.comparing(
+                        ChatSessionSummaryResponse::getLastMessageAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    public ChatSessionResponse getChatSessionByTitle(String title) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         ChatSession chatSession = chatSessionRepository.findByUser_EmailAndTitle(email, title);
+        if (chatSession == null) {
+            // Chưa có session nào với tiêu đề này -> trả về rỗng thay vì lỗi.
+            return ChatSessionResponse.builder()
+                    .title(title)
+                    .messageResponses(new ArrayList<>())
+                    .build();
+        }
         List<ChatMessage> chatMessages = chatMessageRepository.findBySessionOrderByCreatedAtAsc(chatSession);
         List<ChatMessageResponse>  chatMessageResponses = new ArrayList<>();
         for (ChatMessage chatMessage : chatMessages) {
