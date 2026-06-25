@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 @Configuration
 public class InvalidatedJwtValidator implements OAuth2TokenValidator<Jwt> {
 
-//    @Autowired
-//    private InvalidatedTokenRepository  invalidatedTokenRepository;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
     public InvalidatedJwtValidator(InvalidatedTokenRepository invalidatedTokenRepository) {

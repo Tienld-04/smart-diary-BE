@@ -1,6 +1,7 @@
 package com.project1.smart_diary.config;
 
 import com.project1.smart_diary.repository.InvalidatedTokenRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,12 +30,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
     protected String Signer_Key;
-    @Autowired
-    private InvalidatedTokenRepository  invalidatedTokenRepository;
+    private final InvalidatedTokenRepository  invalidatedTokenRepository;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
