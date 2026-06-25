@@ -1,1 +1,1 @@
-# smart-diary-BE
+# smart-diary
