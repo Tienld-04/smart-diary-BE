@@ -1,14 +1,15 @@
 package com.project1.smart_diary.controller;
 
 import com.project1.smart_diary.dto.request.ChatMesssageRequest;
-import com.project1.smart_diary.dto.request.ChatTitleRequest;
 import com.project1.smart_diary.dto.response.ChatSessionResponse;
-import com.project1.smart_diary.entity.ChatSession;
+import com.project1.smart_diary.dto.response.ChatSessionSummaryResponse;
 import com.project1.smart_diary.service.ChatService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/chat")
@@ -22,9 +23,14 @@ public class ChatController {
         return ResponseEntity.ok(chatService.createChatSession(chatMesssageRequest));
     }
 
+    @GetMapping("/sessions")
+    public ResponseEntity<List<ChatSessionSummaryResponse>> getMySessions() {
+        return ResponseEntity.ok(chatService.getAllSessions());
+    }
+
     @GetMapping
-    public ResponseEntity<ChatSessionResponse> getChatSessionResponseByTitle(
-            @RequestBody ChatTitleRequest chatTitleRequest) {
-        return ResponseEntity.ok(chatService.getChatSessionByTitle(chatTitleRequest));
+    public ResponseEntity<ChatSessionResponse> getChatSessionByTitle(
+            @RequestParam("title") String title) {
+        return ResponseEntity.ok(chatService.getChatSessionByTitle(title));
     }
 }

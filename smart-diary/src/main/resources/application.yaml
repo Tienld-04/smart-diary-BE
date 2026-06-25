@@ -2,9 +2,9 @@ server:
   port: "${PORT:8080}"
   forward-headers-strategy: framework
 app:
-  fontend-url: "${FRONTEND_URL:http://localhost:3000}"
+  fontend-url: "${FRONTEND_URL:http://localhost:5173}"
   ngrok:
-    fontend-url-public: "${FRONTEND_URL_PUBLIC:https://5bab1bbac627.ngrok-free.app}"
+    fontend-url-public: "${FRONTEND_URL_PUBLIC:http://localhost:5173}"
 
 spring:
   datasource:
@@ -30,8 +30,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: "${GMAIL_NAME:kshxpilqgfylvyyy}" # Gmail Gửi OTP
-    password: "${GMAIL_APP_PASSWORD:ldtien1996@gmail.com}"      # App Password
+    username: "${GMAIL_NAME}" # Gmail Gửi OTP
+    password: "${GMAIL_APP_PASSWORD}"      # App Password
     properties:
       mail:
         smtp:
@@ -54,17 +54,17 @@ spring:
             user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
             user-name-attribute: "sub"
 cloudinary:
-  cloud-name: "${CLOUDINARY_NAME:dinvsgjet}"
-  api-key: "${CLOUDINARY_API_KEY:529488681841853}"
-  api-secret: "${CLOUDINARY_API_SECRET:3MHUPMlnyEK_dU4EIRPp_GUGc5E}"
+  cloud-name: "${CLOUDINARY_NAME}"
+  api-key: "${CLOUDINARY_API_KEY}"
+  api-secret: "${CLOUDINARY_API_SECRET}"
 jwt:
   signerKey: "${JWT_SIGNER_KEY}"
   valid-duration: 86400
   refreshable-duration: 3000000
 gemini:
   api:
-    key: "${GEMINI_API_KEY:AIzaSyAYnHSgEAQx4vNXcdjzCIyQ8Gkyao1dfnc}"
-    url: "https://generativelanguage.googleapis.com/v1"
+    key: "${GEMINI_API_KEY}"
+    url: "https://generativelanguage.googleapis.com/v1beta"
     endpoints:
-      text-generation: "${gemini.api.url}/models/gemini-2.0-flash:generateContent"
+      text-generation: "${gemini.api.url}/models/gemini-3-flash-preview:generateContent"
 #      image-generation: "${gemini.api.url}/models/gemini-1.5-flash:generateContent"
