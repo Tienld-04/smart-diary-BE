@@ -31,7 +31,6 @@ export default function DiaryEditorPage() {
   const [saving, setSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Load existing diary for edit mode (no single-fetch endpoint, so use the list).
   useEffect(() => {
     if (!isEdit || diaryId == null) return
     let active = true

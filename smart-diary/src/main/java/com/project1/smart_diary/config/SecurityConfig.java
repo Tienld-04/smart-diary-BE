@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 //
-                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/auth/login/google", true) // redirect sau khi login thành công
+                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("/auth/login/google", true) 
                         .failureUrl("/login?error=true"))
                 //
                 // .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -76,7 +76,7 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setPrincipalClaimName("sub"); // get Email
+        converter.setPrincipalClaimName("sub"); 
         return converter;
     }
     @Bean
@@ -86,9 +86,9 @@ public class SecurityConfig {
                 .withSecretKey(secretKeySpec)
                 .macAlgorithm(MacAlgorithm.HS512)
                 .build();
-        OAuth2TokenValidator<Jwt> defaultValidator = JwtValidators.createDefault(); // kiểm tra tính hợp lệ của token
-        OAuth2TokenValidator<Jwt> blacklistValidator = new InvalidatedJwtValidator(invalidatedTokenRepository); // kiểm tra jti của token có nằm trong DB blacklist hay không.
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaultValidator, blacklistValidator)); // kết hợp các validator
+        OAuth2TokenValidator<Jwt> defaultValidator = JwtValidators.createDefault(); 
+        OAuth2TokenValidator<Jwt> blacklistValidator = new InvalidatedJwtValidator(invalidatedTokenRepository); 
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaultValidator, blacklistValidator)); 
         return decoder;
     }
 }

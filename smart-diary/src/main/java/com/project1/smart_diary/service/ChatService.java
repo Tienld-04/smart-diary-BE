@@ -120,7 +120,7 @@ public class ChatService {
                     .build();
         }
     }
-    // Lấy toàn bộ session chat của user hiện tại (mới nhất lên đầu).
+
     public List<ChatSessionSummaryResponse> getAllSessions() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         List<ChatSession> sessions = chatSessionRepository.findByUser_Email(email);
@@ -146,7 +146,6 @@ public class ChatService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         ChatSession chatSession = chatSessionRepository.findByUser_EmailAndTitle(email, title);
         if (chatSession == null) {
-            // Chưa có session nào với tiêu đề này -> trả về rỗng thay vì lỗi.
             return ChatSessionResponse.builder()
                     .title(title)
                     .messageResponses(new ArrayList<>())
