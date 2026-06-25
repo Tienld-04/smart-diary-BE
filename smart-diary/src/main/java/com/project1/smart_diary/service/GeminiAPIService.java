@@ -1,5 +1,6 @@
 package com.project1.smart_diary.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project1.smart_diary.config.GeminiApiConfig;
@@ -13,6 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -63,17 +67,22 @@ public class GeminiAPIService {
     private String callGeminiAPI(String prompt) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // BỎ Authorization header - Gemini sử dụng query parameter
         String apiKey = geminiApiConfig.getKey();
-        log.info("Using API key: {}", apiKey != null ? apiKey.substring(0, 10) + "..." : "NULL");
-        String requestBody = String.format(
-                "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}",
-                prompt.replace("\"", "\\\"")
-        );
+        log.info("Using API key: {}", apiKey != null && apiKey.length() >= 10 ? apiKey.substring(0, 10) + "..." : "NULL");
+        String requestBody;
+        try {
+            Map<String, Object> body = Map.of(
+                    "contents", List.of(Map.of(
+                            "parts", List.of(Map.of("text", prompt))
+                    ))
+            );
+            requestBody = objectMapper.writeValueAsString(body);
+        } catch (JsonProcessingException ex) {
+            throw new RuntimeException("Không tạo được request body cho Gemini", ex);
+        }
         log.info("Request body: {}", requestBody);
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
         try {
-            // Thêm API key vào query parameter thay vì header
             String urlWithKey = geminiApiConfig.getEndpoints().get("text-generation") + "?key=" + apiKey;
             ResponseEntity<String> response = restTemplate.postForEntity(
                     urlWithKey,

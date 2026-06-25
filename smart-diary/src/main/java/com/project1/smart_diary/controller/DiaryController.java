@@ -25,7 +25,7 @@ public class DiaryController {
     @Autowired
     private DiaryService diaryService;
 
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public ResponseEntity<DiaryResponse> createDiary(
 //            @RequestParam("title") String title,
 //            @RequestParam("content") String content,
@@ -41,6 +41,7 @@ public class DiaryController {
         DiaryResponse result = diaryService.createDiaryWithMedia(diaryRequest);
         return ResponseEntity.ok(result);
     }
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DiaryResponse> updateDiary(
 //            @ModelAttribute UpdateDiaryRequest updateDiaryRequest
@@ -74,30 +75,33 @@ public class DiaryController {
         diarySearchByDateRequest.setToDate(toDate);
         return ResponseEntity.ok(diaryService.searchDiaryByDate(diarySearchByDateRequest));
     }
+
     @GetMapping("/search/emotion")
     public ResponseEntity<List<DiaryResponse>> searchDiaryByEmotion(
-            @RequestParam(value = "emotion", required = false) String emotion){
-        return  ResponseEntity.ok(diaryService.searchDiaryByEmotion(emotion));
+            @RequestParam(value = "emotion", required = false) String emotion) {
+        return ResponseEntity.ok(diaryService.searchDiaryByEmotion(emotion));
     }
+
     @GetMapping("/search/keyword")
     public ResponseEntity<List<DiaryResponse>> searchDiaryByKeyword(
             @RequestParam("keyword") String keyword
     ) {
         return ResponseEntity.ok(diaryService.searchDiaryByKeyword(keyword));
     }
+
     @GetMapping("/search")
     public ResponseEntity<List<DiaryResponse>> searchDiary(
             //@ModelAttribute DiarySearchRequest diarySearchRequest
             @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(value = "emotion", required = false) String emotion,
-            @RequestParam(value = "keyword", required = false) String keyword){
-            DiarySearchRequest diarySearchRequest = DiarySearchRequest.builder()
-                    .fromDate(fromDate)
-                    .toDate(toDate)
-                    .emotion(emotion)
-                    .keyword(keyword)
-                    .build();
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        DiarySearchRequest diarySearchRequest = DiarySearchRequest.builder()
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .emotion(emotion)
+                .keyword(keyword)
+                .build();
         return ResponseEntity.ok(diaryService.searchDiaryByFullOption(diarySearchRequest));
     }
 
@@ -106,6 +110,7 @@ public class DiaryController {
         List<DiaryResponse> diaryResponses = diaryService.getRecentDiary();
         return ResponseEntity.ok(diaryResponses);
     }
+
     @DeleteMapping("/{diaryId}")
     public ResponseEntity<Map<String, String>> deleteDiaryByIds(@PathVariable List<Long> diaryId) {
         diaryService.deleteDiaryByIds(diaryId);
@@ -113,6 +118,7 @@ public class DiaryController {
         response.put("status", "đã xóa thành công");
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/emotions")
     public ResponseEntity<Map<LocalDate, Emotion>> getEmotionsByMonth(
             @RequestParam int year,
@@ -121,6 +127,7 @@ public class DiaryController {
         Map<LocalDate, Emotion> emotions = diaryService.getEmotionByMonth(year, month);
         return ResponseEntity.ok(emotions);
     }
+
     @GetMapping("/date")
     public ResponseEntity<List<DiaryResponse>> getAllDiaryByDate(@Valid @RequestBody DiaryDateRequest diaryDateRequest) {
         return ResponseEntity.ok(diaryService.getAllDiaryByDateAndMonthAndYear(diaryDateRequest));

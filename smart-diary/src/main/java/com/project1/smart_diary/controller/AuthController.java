@@ -14,13 +14,18 @@ import com.project1.smart_diary.service.ResetPassword.EmailService;
 import com.project1.smart_diary.service.ResetPassword.PasswordResetService;
 import com.project1.smart_diary.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -38,6 +43,10 @@ public class AuthController {
     private PasswordResetService passwordResetService;
     @Autowired
     private JwtService jwtService;
+
+    @Value("${app.fontend-url}")
+    private String frontendUrl;
+
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
@@ -48,6 +57,7 @@ public class AuthController {
         UserResponse userResponse = userService.createUser(userCreateRequest);
         return ResponseEntity.ok(userResponse);
     }
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         authService.logout(request);
@@ -58,8 +68,13 @@ public class AuthController {
     //https://lavona-nonproficient-roxana.ngrok-free.dev/oauth2/authorization/google
     //https://lavona-nonproficient-roxana.ngrok-free.dev/auth/login/google
     //http://localhost:8080/auth/login/google
+    // Sau khi đăng nhập Google thành công, redirect về frontend kèm token để SPA nhận được.
     @GetMapping("/login/google")
-    public ResponseEntity<AuthenticationResponse> loginGoogle(@AuthenticationPrincipal OAuth2User principal) {
+    public void loginGoogle(@AuthenticationPrincipal OAuth2User principal, HttpServletResponse httpResponse) throws IOException {
+        if (principal == null) {
+            httpResponse.sendRedirect(frontendUrl + "/login?error=google");
+            return;
+        }
         Map<String, Object> attributes = principal.getAttributes();
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
@@ -74,7 +89,10 @@ public class AuthController {
         loginGoogleDTO.setProviderId(sub);
         userService.createUserWithGoogle(loginGoogleDTO);
         //
-        return ResponseEntity.ok(authService.LoginWithGoogle(loginGoogleDTO));
+        AuthenticationResponse authResponse = authService.LoginWithGoogle(loginGoogleDTO);
+        String redirectUrl = frontendUrl + "/oauth2/callback?token="
+                + URLEncoder.encode(authResponse.getToken(), StandardCharsets.UTF_8);
+        httpResponse.sendRedirect(redirectUrl);
     }
 
     @PostMapping("/change-password")
@@ -105,6 +123,7 @@ public class AuthController {
         passwordResetService.removeResetToken(resetPasswordRequest.getToken());
         return ResponseEntity.ok(res);
     }
+
     @PostMapping("/refresh")
     public ResponseEntity<AuthenticationResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) throws ParseException, JOSEException {
         var res = jwtService.refreshToken(refreshTokenRequest);

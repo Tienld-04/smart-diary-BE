@@ -1,0 +1,13 @@
+
+
+### IntelliJ IDEA ###
+.ideas
+.idea
+### VS Code ###
+.vscode/
+# .gitignore
+# .gitignore
+.env*
+.env
+
+.claude
