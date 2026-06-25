@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — calm, premium journaling aesthetic.
+   Brand: a soft violet→indigo. Accent: warm rose. Surfaces: cream.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-serif: "Lora", ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Brand violet */
+  --color-brand-50: #f2f1ff;
+  --color-brand-100: #e8e6ff;
+  --color-brand-200: #d3cfff;
+  --color-brand-300: #b3aaff;
+  --color-brand-400: #8f7dff;
+  --color-brand-500: #6d5efc;
+  --color-brand-600: #5a44f0;
+  --color-brand-700: #4c36d4;
+  --color-brand-800: #3f2eab;
+  --color-brand-900: #362b87;
+  --color-brand-950: #211a4f;
+
+  /* Accent rose */
+  --color-accent-50: #fff1f6;
+  --color-accent-100: #ffe4ee;
+  --color-accent-200: #ffc9de;
+  --color-accent-300: #ff9dc1;
+  --color-accent-400: #fb6aa0;
+  --color-accent-500: #f1417f;
+  --color-accent-600: #dd2065;
+  --color-accent-700: #ba1253;
+  --color-accent-800: #9a1349;
+  --color-accent-900: #821443;
+
+  /* Warm neutral surfaces */
+  --color-sand-50: #fbfaf7;
+  --color-sand-100: #f6f3ec;
+  --color-sand-200: #ece6da;
+
+  --radius-xl: 1.1rem;
+  --radius-2xl: 1.4rem;
+  --radius-3xl: 1.9rem;
+
+  --shadow-soft: 0 1px 2px rgba(33, 26, 79, 0.04),
+    0 8px 24px -10px rgba(33, 26, 79, 0.18);
+  --shadow-glow: 0 18px 50px -18px rgba(109, 94, 252, 0.55);
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+@layer base {
+  * {
+    border-color: rgba(33, 26, 79, 0.08);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    color: #2c2747;
+    background-color: #f6f4ff;
+    background-image:
+      radial-gradient(900px 600px at 8% -5%, rgba(143, 125, 255, 0.18), transparent 60%),
+      radial-gradient(820px 520px at 100% 0%, rgba(251, 106, 160, 0.14), transparent 55%),
+      radial-gradient(700px 700px at 50% 110%, rgba(109, 94, 252, 0.1), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(109, 94, 252, 0.22);
+  }
+}
+
+/* ── Reusable component utilities ───────────────────────────── */
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+  }
+
+  .card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(33, 26, 79, 0.06);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .gradient-text {
+    background-image: linear-gradient(110deg, #6d5efc, #a855f7 45%, #f1417f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-brand {
+    background-image: linear-gradient(120deg, #6d5efc, #8b5cf6 55%, #f1417f 130%);
+    box-shadow: 0 10px 26px -12px rgba(109, 94, 252, 0.85);
+  }
+  .btn-brand:hover {
+    filter: brightness(1.05);
+  }
+
+  .ring-focus:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(109, 94, 252, 0.28);
+    border-color: var(--color-brand-400);
+  }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(109, 94, 252, 0.35) transparent;
+  }
+  .scrollbar-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background: rgba(109, 94, 252, 0.3);
+    border-radius: 999px;
+  }
+  .scrollbar-slim::-webkit-scrollbar-thumb:hover {
+    background: rgba(109, 94, 252, 0.5);
+  }
+
+  .animate-float {
+    animation: float 7s ease-in-out infinite;
+  }
+  .animate-shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
